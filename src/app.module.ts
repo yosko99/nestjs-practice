@@ -1,11 +1,19 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ProductModule } from './product/products.module';
 import { TestController } from './test/test.controller';
 
+import { CheckIDMiddleware } from './product/checkID.middleware';
+
 import dotenv = require('dotenv');
+import { TestMiddleware } from './product/test.middleware';
 dotenv.config();
 
 @Module({
@@ -13,4 +21,12 @@ dotenv.config();
   controllers: [AppController, TestController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(CheckIDMiddleware).forRoutes({
+      path: 'products/:id',
+      method: RequestMethod.GET,
+    });
+    consumer.apply(TestMiddleware).forRoutes('*');
+  }
+}

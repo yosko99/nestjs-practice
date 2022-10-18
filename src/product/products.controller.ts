@@ -5,8 +5,20 @@ import { ProductService } from './products.service';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
   @Post()
-  createProduct(@Body('title') title: string, @Body('price') price: number) {
-    return this.productService.createProduct(title, price);
+  createProduct(
+    @Body('title') title: string,
+    @Body('price') price: number,
+    @Body('description') description: string,
+    @Body('category') category: string,
+    @Body('image') image: string,
+  ) {
+    return this.productService.createProduct(
+      title,
+      price,
+      description,
+      category,
+      image,
+    );
   }
 
   @Get()
