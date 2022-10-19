@@ -1,32 +1,54 @@
-import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { productSchema } from './product.model';
-import { ProductController } from './products.controller';
-import { ProductService } from './products.service';
+import * as request from 'supertest';
+
+import * as mongoose from 'mongoose';
+
+import { INestApplication } from '@nestjs/common';
+import { AppModule } from '../app.module';
 
 import dotenv = require('dotenv');
-import { response } from 'express';
 dotenv.config();
 
 describe('ProductController', () => {
-  let productController: ProductController;
+  const productStructure = {
+    id: expect.any(String),
+    title: expect.any(String),
+    price: expect.any(Number),
+    description: expect.any(String),
+    category: expect.any(String),
+    image: expect.any(String),
+    categoryURL: expect.any(String),
+    rating: expect.objectContaining({
+      rate: expect.any(Number),
+      count: expect.any(Number),
+    }),
+    translations: expect.any(Array),
+  };
 
-  beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
-      controllers: [ProductController],
-      providers: [ProductService],
-      imports: [
-        MongooseModule.forFeature([{ name: 'Product', schema: productSchema }]),
-        MongooseModule.forRoot(process.env.MONGO_URI),
-      ],
+  let app: INestApplication;
+  beforeAll(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
     }).compile();
 
-    productController = app.get<ProductController>(ProductController);
+    app = moduleFixture.createNestApplication();
+    await app.init();
   });
 
-  it('get all products', () => {
-    productController.getAllProducts().then((response) => {
-      expect(response).toBe([]);
-    });
+  afterAll(async () => {
+    await app.close();
+    mongoose.disconnect();
+  });
+
+  test('get all products', () => {
+    return request(app.getHttpServer())
+      .get('/products')
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .then((response) => {
+        expect(response.body).toEqual(
+          expect.arrayContaining([expect.objectContaining(productStructure)]),
+        );
+      });
   });
 });

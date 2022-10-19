@@ -36,7 +36,20 @@ export class ProductService {
   }
 
   async getProduct(id: string) {
-    const product = await this.productModel.find({ _id: id });
+    return this.checkExistingProduct(id);
+  }
+
+  async updateProduct(id: string, title: string) {
+    await this.productModel.updateOne(
+      { _id: id },
+      {
+        title,
+      },
+    );
+  }
+
+  private async checkExistingProduct(id: string) {
+    const product = await this.productModel.findOne({ _id: id });
 
     if (product === null) {
       return new NotFoundException('Could not find the product');

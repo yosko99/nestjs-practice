@@ -5,6 +5,7 @@ import { HttpErrorFilter } from './filters/httpError.filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalFilters(new HttpErrorFilter());
-  await app.listen(3000);
+  // app.setGlobalPrefix('/api');
+  await app.listen(5000);
 }
 bootstrap();
