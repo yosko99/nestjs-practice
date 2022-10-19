@@ -12,8 +12,8 @@ import { TestController } from './test/test.controller';
 
 import { CheckIDMiddleware } from './product/checkID.middleware';
 
-import dotenv = require('dotenv');
 import { TestMiddleware } from './product/test.middleware';
+import dotenv = require('dotenv');
 dotenv.config();
 
 @Module({
